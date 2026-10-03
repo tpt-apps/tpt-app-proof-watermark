@@ -1,0 +1,25 @@
+[package]
+name = "tpt-proof-desktop"
+version = "0.1.0"
+edition = "2021"
+description = "TPT Proof Watermarker Pro - desktop webview shell hosting the appfront DOM bundle."
+publish = false
+
+[[bin]]
+name = "tpt-proof-watermarker-pro"
+path = "src/main.rs"
+
+[dependencies]
+tpt-appfront-webview = { path = "D:/Programming/1PRODUCTION/Open Source/tpt-appfront/crates/tpt-appfront-webview" }
+# Embeds `../dist` into the exe at compile time so the shipped binary is a
+# genuinely standalone, single-file download — no separate dist/ folder the
+# customer could unzip apart from it or move the exe away from.
+include_dir = "0.7"
+# Opens tptsolutions.co.nz links in the OS default browser in response to the
+# `open_external` IPC action — the webview itself has no browser chrome to
+# navigate within.
+open = "5"
+# The batch file bridge the hosted page drives: list_images / read_file_b64 /
+# write_file_b64. Writes are confined to the active batch root.
+base64 = "0.22"
+serde_json = "1"

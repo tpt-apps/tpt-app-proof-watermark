@@ -1,0 +1,76 @@
+[package]
+name = "tpt-app-proof-watermark"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+members = [".", "engine", "desktop"]
+resolver = "2"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+# Pro edition (paid desktop build): batch folder watermarking, saved
+# per-client presets, and explicit EXIF stripping. The free WASM build
+# compiles without it; `--features pro` is Pro.
+pro = ["dep:base64", "dep:wasm-bindgen-futures"]
+
+[dependencies]
+tpt-appfront-core = { path = "D:/Programming/1PRODUCTION/Open Source/tpt-appfront/crates/tpt-appfront-core" }
+tpt-appfront-dom = { path = "D:/Programming/1PRODUCTION/Open Source/tpt-appfront/crates/tpt-appfront-dom" }
+tpt-proof-engine = { path = "engine" }
+# Pinned to the installed wasm-bindgen CLI version — the CLI rejects wasm
+# built against a different schema version. Bump both together.
+wasm-bindgen = "=0.2.128"
+js-sys = "0.3"
+# Pro desktop only: awaited IPC replies + base64 payloads over the native
+# file bridge. Compiled out of the free hub build.
+wasm-bindgen-futures = { version = "0.4", optional = true }
+base64 = { version = "0.22", optional = true }
+web-sys = { version = "0.3", features = [
+    "Document",
+    "Window",
+    "Location",
+    "Storage",
+    "Element",
+    "Node",
+    "NodeList",
+    "HtmlElement",
+    "HtmlInputElement",
+    "HtmlSelectElement",
+    "HtmlHeadElement",
+    "CssStyleDeclaration",
+    "HtmlCollection",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
+    "ImageData",
+    "Event",
+    "EventTarget",
+    "Blob",
+    "BlobPropertyBag",
+    "Url",
+    "HtmlAnchorElement",
+    "DomRect",
+    "File",
+    "FileList",
+    "FileReader",
+    "DragEvent",
+    "DataTransfer",
+    "KeyboardEvent",
+] }
+console_error_panic_hook = "0.1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# The desktop shell is a native binary; keep its codegen normal even in the
+# same workspace (the `release` profile above applies to the wasm lib build).
+[profile.release.package.tpt-proof-desktop]
+opt-level = 3

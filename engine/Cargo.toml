@@ -1,0 +1,12 @@
+[package]
+name = "tpt-proof-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Proof-watermarking adapter over tpt-wasmforge: image bytes + watermark spec in, watermarked image bytes out; lossless EXIF/metadata stripping. Plain functions, no UI deps, host-testable on native and wasm32."
+publish = false
+
+[dependencies]
+# Wraps the wasmforge media crates rather than pulling `image` in directly:
+# PNG/JPEG codecs, bilinear resize, and the compositing primitives live here.
+tpt-media-core = { path = "D:/Programming/1PRODUCTION/Open Source/tpt-wasmforge/tpt-media-core" }
+tpt-media-image = { path = "D:/Programming/1PRODUCTION/Open Source/tpt-wasmforge/tpt-media-image" }
