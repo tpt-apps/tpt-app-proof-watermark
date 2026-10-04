@@ -55,6 +55,7 @@ pub fn apply_watermark(
 ) -> ForgeResult<Vec<u8>> {
     let img = decode(input)?;
     let min_dim = img.width.min(img.height);
+    let max_width = (img.width as f32 * 0.95) as u32;
     let overlay = match &spec.content {
         WatermarkContent::Text { text, color } => {
             let height_px = spec
@@ -62,7 +63,17 @@ pub fn apply_watermark(
                 .clamp(spec::MIN_SCALE, spec::MAX_SCALE)
                 .mul_add(min_dim as f32, 0.5)
                 .round() as u32;
-            render::text_overlay(text, height_px.max(8), color.0)
+            let overlay = render::text_overlay(text, height_px.max(8), color.0);
+            // Long studio names on portrait images would otherwise clip at
+            // the left edge — shrink to fit the width, never upscale.
+            if overlay.width > max_width && overlay.width > 0 {
+                let fitted = ((height_px as f64 * max_width as f64 / overlay.width as f64)
+                    .round() as u32)
+                    .max(8);
+                render::text_overlay(text, fitted.min(height_px.max(8)), color.0)
+            } else {
+                overlay
+            }
         }
         WatermarkContent::Logo => {
             let bytes =

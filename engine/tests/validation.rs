@@ -95,6 +95,43 @@ fn copyright_glyph_is_not_a_space() {
 }
 
 #[test]
+fn long_text_shrinks_to_fit_image_width() {
+    // A long studio line at a large scale on a portrait image would
+    // otherwise clip at the left edge — it must shrink to fit instead.
+    let photo = test_photo(600, 1600);
+    let mut spec = text_spec();
+    spec.content = WatermarkContent::Text {
+        text: "\u{A9} A Very Long Studio Name — Client Proofs 2026".to_string(),
+        color: Color::WHITE,
+    };
+    spec.scale = 0.12; // way oversized for a 600 px wide image
+    let out = apply_watermark(&photo, &spec, None, ImageFormat::Jpeg, 95).unwrap();
+    let decoded = decode(&out).unwrap();
+    // The full text must be on the image: with clipping the ink would start
+    // at x=0 (left edge), while a fitted overlay starts at the placement
+    // margin (600/40 = 15 → first glyph around x≈33).
+    let (da, db) = (decode(&photo).unwrap(), decoded);
+    let mut leftmost = db.width;
+    let mut ink_pixels = 0usize;
+    for y in 0..db.height {
+        for x in 0..db.width {
+            let (p, q) = (da.get_pixel(x, y), db.get_pixel(x, y));
+            if p.iter().zip(q.iter()).any(|(a, b)| (i32::from(*a) - i32::from(*b)).abs() > 24) {
+                leftmost = leftmost.min(x);
+                ink_pixels += 1;
+            }
+        }
+    }
+    assert!(ink_pixels > 100, "watermark drew nothing");
+    assert!(
+        leftmost > 5,
+        "text was clipped at the left edge instead of shrunk to fit (leftmost={leftmost})"
+    );
+    // And the watermark must still respect the bottom placement.
+    assert!(diff_pixels(&photo, &out, 24) > 100);
+}
+
+#[test]
 fn opacity_scales_watermark_strength() {
     let photo = test_photo(800, 600);
     let mut spec = text_spec();

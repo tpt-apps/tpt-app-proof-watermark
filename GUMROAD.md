@@ -24,8 +24,10 @@ that changes, update here too (and vice versa).
 
 ## File to upload
 
-Not built yet. Once packaged, this will be the Pro exe/zip produced by the
-app's `build.ps1 -Pro` (or equivalent) — see `todo.md`.
+`release/TPT-Proof-Watermarker-Pro.zip` — produced by `./build.ps1 -Pro`
+(the zip contains the standalone exe plus a README; the exe embeds the web
+bundle, so customers get a single double-clickable file). Rebuild with
+`./build.ps1 -Pro` whenever the app changes before publishing.
 
 ## Product name
 
@@ -85,7 +87,8 @@ preinstalled on both — nothing extra to download.
 ## Cover image / thumbnail
 
 Not created yet. A before/after of a watermarked proof gallery is the most
-convincing cover once built. No stock/AI art.
+convincing cover once built. No stock/AI art. (A quick option: load a proof
+in the app, watermark it, screenshot the before/after preview.)
 
 ## After publishing
 
